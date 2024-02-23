@@ -53,8 +53,8 @@ def app():
         oily_percentage = max(0, min(oily_percentage, 1))
 
         # Convert percentages to strings with two decimal places
-        dry_percentage_str = f"{dry_percentage:.2f}"
-        oily_percentage_str = f"{oily_percentage:.2f}"
+        dry_percentage_str = f"{dry_percentage*100:.2f}"
+        oily_percentage_str = f"{oily_percentage*100:.2f}"
 
         st.progress(dry_percentage,text="You have "+dry_percentage_str+"% Dry Skin")
 
