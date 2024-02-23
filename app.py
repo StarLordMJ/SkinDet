@@ -27,8 +27,10 @@ def classify_image(image_path):
 
 # Define the Streamlit app
 def app():
-    st.title("Image Classification App")
-    st.write("This app classifies an image as either dry or oily skin.")
+    st.title("Oily/Dry Skin Level Predictor 🧑🏻👩🏻")
+    st.write("Coded by Manith Jayaba")
+
+    st.write("This app can measure the oiliness and dryness of your skin")
 
     # Get the image file from the user
     image_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
