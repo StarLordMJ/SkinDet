@@ -20,7 +20,7 @@ def classify_image(image_path):
     # Process predictions for clarity
     predicted_class = np.argmax(predictions)  # Get class label
     percentages = predictions[0] * 100  # Get percentages directly
-    dry_percentage, oily_percentage, normal_percentage = percentages
+    dry_percentage, normal_percentage, oily_percentage = percentages
 
     # Ensure percentages are within 0-100
     dry_percentage = max(0, min(dry_percentage, 100))
