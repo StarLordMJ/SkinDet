@@ -1,60 +1,32 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-from PIL import Image
 
-# Load the model (ensure correct path for loading)
-model = tf.keras.models.load_model('oily_dry.h5') 
-print('hello')
+# Set the title of the web app
+st.title('Skin Type Classification')
 
-def classify_image(image_path):
-    # Load and resize the image
-    image = Image.open(image_path).resize((224, 224))
+# Load the saved model
+model = tf.keras.models.load_model('oily_dry.h5')
 
-    # Preprocess the image
-    image = tf.keras.preprocessing.image.img_to_array(image) / 255.0  # Combine steps
-    image = np.expand_dims(image, axis=0)
+# Create a file uploader for the test image
+uploaded_file = st.file_uploader("Choose an image...", type="jpg")
 
-    # Classify the image
-    predictions = model.predict(image)
-
-    # Process predictions for clarity
-    predicted_class = np.argmax(predictions)  # Get class label
-    percentages = predictions[0] * 100  # Get percentages directly
-    dry_percentage, normal_percentage, oily_percentage = percentages
-
-    # Ensure percentages are within 0-100
-    dry_percentage = max(0, min(dry_percentage, 100))
-    oily_percentage = max(0, min(oily_percentage, 100))
-    normal_percentage = max(0, min(normal_percentage, 100))
-
-    return predicted_class, dry_percentage, oily_percentage, normal_percentage
-
-def app():
-    st.title("Oily/Dry Skin Level Predictor 🧑🏻👩🏻")
+# Perform the prediction when an image is uploaded
+if uploaded_file is not None:
+    img = tf.keras.preprocessing.image.load_img(uploaded_file, target_size=(224, 224))
+    x = tf.keras.preprocessing.image.img_to_array(img)
+    x /= 255.0  # Normalize pixel values to [0, 1]
+    x = np.expand_dims(x, axis=0)
     
-    st.write("Coded by Manith Jayaba")
+    # Classify the image
+    predictions = model.predict(x)
 
-    st.write("This app can measure the oiliness and dryness of your skin")
+    # Get the predicted class label
+    predicted_class = np.argmax(predictions)
 
-    # Get the image file
-    image_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-
-    # Classify and display the result
-    if image_file is not None:
-        image_path = image_file.name
-        with open(image_path, "wb") as f:
-            f.write(image_file.getbuffer())
-
-        predicted_class, dry_percentage, oily_percentage, normal_percentage = classify_image(image_path)
-
-        st.image(image_path, width=250)
-
-        # Convert percentages to integers before passing to progress
-        st.progress(int(dry_percentage), text=f"You have {dry_percentage:.2f}% Dry Skin")
-        st.progress(int(oily_percentage), text=f"You have {oily_percentage:.2f}% Oily Skin")
-        st.progress(int(normal_percentage), text=f"You have {normal_percentage:.2f}% Normal Skin")
-
-
-if __name__ == "__main__":
-    app()
+    # Display the prediction results
+    st.write("Prediction Results:")
+    st.write(f"You have {predictions[0][0]*100:.2f}% Dry Skin")
+    st.write(f"You have {predictions[0][1]*100:.2f}% Normal Skin")
+    st.write(f"You have {predictions[0][2]*100:.2f}% Oily Skin")
+    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
