@@ -2,10 +2,10 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-from keras.models import load_model
 
 # Load the model (ensure correct path for loading)
-model = load_model('oily_dry.h5')
+model = tf.keras.models.load_model('oily_dry.h5') 
+print('hello')
 
 def classify_image(image_path):
     # Load and resize the image
