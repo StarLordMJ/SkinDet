@@ -1,3 +1,8 @@
+!pip install streamlit
+!pip install tensorflow
+!pip install numpy
+!pip install Pillow
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
