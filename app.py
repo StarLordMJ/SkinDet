@@ -1,65 +1,32 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-import PIL
+
+# Set the title of the web app
+st.title('Skin Type Classification')
 
 # Load the saved model
 model = tf.keras.models.load_model('oily_dry.h5')
 
-# Define the function for image classification
-def classify_image(image_path):
-    # Load the image to be classified
-    image = PIL.Image.open(image_path).resize((224, 224))
+# Create a file uploader for the test image
+uploaded_file = st.file_uploader("Choose an image...", type="jpg")
 
-    # Preprocess the image
-    image = tf.keras.preprocessing.image.img_to_array(image)  # Convert to NumPy array
-    image /= 255.0  # Normalize pixel values to [0, 1]
-    image = np.expand_dims(image, axis=0)  # Add batch dimension
-
+# Perform the prediction when an image is uploaded
+if uploaded_file is not None:
+    img = tf.keras.preprocessing.image.load_img(uploaded_file, target_size=(224, 224))
+    x = tf.keras.preprocessing.image.img_to_array(img)
+    x /= 255.0  # Normalize pixel values to [0, 1]
+    x = np.expand_dims(x, axis=0)
+    
     # Classify the image
-    predictions = model.predict(image)
+    predictions = model.predict(x)
 
     # Get the predicted class label
     predicted_class = np.argmax(predictions)
 
-    # Return the predicted class label and percentages
-    return predicted_class, float(predictions[0][0]), float(predictions[0][1])
-
-# Define the Streamlit app
-def app():
-    st.title("Oily/Dry Skin Level Predictor 🧑🏻👩🏻")
-    st.write("Coded by Manith Jayaba")
-
-    st.write("This app can measure the oiliness and dryness of your skin")
-
-    # Get the image file from the user
-    image_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-
-    # Classify the image and display the result
-    if image_file is not None:
-        image_path = image_file.name
-        with open(image_path, "wb") as f:
-            f.write(image_file.getbuffer())
-
-        st.image(image_path, width=250)
-
-        predicted_class, dry_percentage, oily_percentage = classify_image(image_path)
-
-        dry_percentage = dry_percentage # Replace with your actual dry percentage value
-        oily_percentage = oily_percentage  # Replace with your actual oily percentage value
-
-        # Ensure percentages are within the valid range (0 to 100)
-        dry_percentage = max(0, min(dry_percentage, 1))
-        oily_percentage = max(0, min(oily_percentage, 1))
-
-        # Convert percentages to strings with two decimal places
-        dry_percentage_str = f"{dry_percentage*100:.2f}"
-        oily_percentage_str = f"{oily_percentage*100:.2f}"
-
-        st.progress(dry_percentage,text="You have "+dry_percentage_str+"% Dry Skin")
-
-        st.progress(oily_percentage,text="You have "+oily_percentage_str+"% Oily Skin")
-
-# Run the Streamlit app
-if __name__ == "__main__":
-    app()
+    # Display the prediction results
+    st.write("Prediction Results:")
+    st.write(f"You have {predictions[0][0]*100:.2f}% Dry Skin")
+    st.write(f"You have {predictions[0][1]*100:.2f}% Normal Skin")
+    st.write(f"You have {predictions[0][2]*100:.2f}% Oily Skin")
+    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
